@@ -1,5 +1,5 @@
 export const COLORS = {
-  primary: '#2C9E4B', // Aforro Green
+  primary: '#55913D', // Aforro Green
   secondary: '#FFC700', // Warning/Accent Yellow
   text: '#1A1A1A',
   textSecondary: '#666666',
@@ -14,12 +14,15 @@ export const COLORS = {
   divider: '#F0F0F0',
   lightGreen: '#E8F5E9',
   darkGreen: '#1B5E20',
-  infoBlue: '#E8F5FF', // Blue savings ribbon background
-  infoBlueText: '#007AFF', // Blue text for savings
-  warningYellow: '#FFF9E5', // Delay warning background
-  warningYellowText: '#856404', // Delay warning text
-  badgeGreen: '#F0FFF4', // "Applied" coupon background
-  promoRed: '#FFF5F5', // "Item out of stock" error background
+  infoBlue: '#E8F5FF',
+  infoBlueText: '#007AFF',
+  warningYellow: '#FFF9E5',
+  warningYellowText: '#856404',
+  badgeGreen: '#F0FFF4',
+  promoRed: '#FFF5F5',
+
+  //New colors from Figma
+  navTeal: '#0C748C',
 };
 
 export const SPACING = {

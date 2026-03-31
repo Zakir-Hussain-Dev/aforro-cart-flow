@@ -1,16 +1,16 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  SafeAreaView, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
   Alert,
   Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MapPin, Info, Plus } from 'lucide-react-native';
+import { MapPin, Info, Plus, ChevronDown, ShoppingCart } from 'lucide-react-native';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
 import { InfoBanner } from '../components/InfoBanner';
@@ -22,13 +22,14 @@ import { COLORS, SPACING, TYPOGRAPHY } from '../theme/constants';
 import { useCart } from '../context/CartContext';
 import { useAddress } from '../context/AddressContext';
 import { useAuth } from '../context/AuthContext';
+import { DiscountBadge } from '../components/DiscountBadge';
 
 export const ReviewCartScreen = () => {
   const navigation = useNavigation();
   const { items, payableAmount, totalSavings } = useCart();
   const { selectedAddress } = useAddress();
   const { isAuthenticated } = useAuth();
-  
+
   const handleProceed = () => {
     if (!isAuthenticated) {
       (navigation as any).navigate('Login');
@@ -37,37 +38,44 @@ export const ReviewCartScreen = () => {
     }
   };
 
-  const OutOfStockBanner = () => {
-    const outOfStockItems = items.filter(item => !item.inStock);
-    if (outOfStockItems.length === 0) return null;
-
+  if (items.length === 0) {
     return (
-      <View style={styles.ootBanner}>
-        <Text style={styles.ootTitle}>This item is out of stock</Text>
-        <Text style={styles.ootText}>
-          Please remove these items to proceed with the rest of your order.
-        </Text>
+      <View style={styles.emptyContainer}>
+        <Header title="Review Cart" />
+        <View style={styles.emptyContent}>
+          <View style={styles.emptyIconCircle}>
+            <ShoppingCart size={48} color={COLORS.navTeal} />
+          </View>
+          <Text style={styles.emptyTitle}>Your cart is empty</Text>
+          <Text style={styles.emptySubtitle}>
+            Looks like you haven't added anything to your cart yet.
+          </Text>
+          <Button
+            title="Start Shopping"
+            onPress={() => (navigation as any).navigate('Home')}
+            style={styles.emptyBtn}
+          />
+        </View>
       </View>
     );
-  };
+  }
 
   return (
     <View style={styles.container}>
       <Header title="Review Cart" />
-      
+
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-        {/* Savings Ribbon */}
-        <InfoBanner 
-          message={`You are saving ₹${totalSavings} with this order!`} 
-          variant="info" 
-          style={styles.ribbon}
+        {/* Top Info Banners */}
+        <InfoBanner
+          message={`You are saving ₹${totalSavings} with this order!`}
+          variant="info"
+          style={styles.topInfo}
         />
 
-        {/* Warning Banner */}
-        <InfoBanner 
-          message="Your order might be delayed due to high demand" 
-          variant="warning" 
-          style={styles.banner}
+        <InfoBanner
+          message="Your order might be delayed due to high demand"
+          variant="warning"
+          style={styles.topWarning}
           icon={<Info size={16} color={COLORS.warningYellowText} />}
         />
 
@@ -78,23 +86,34 @@ export const ReviewCartScreen = () => {
           ))}
         </View>
 
-        <OutOfStockBanner />
-
         {/* Did you forget? Section */}
         <View style={styles.suggestionSection}>
           <Text style={styles.sectionTitle}>Did you forget?</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.suggestionScroll}>
             {[1, 2, 3].map((i) => (
               <View key={i} style={styles.suggestionBox}>
-                <Image 
-                  source={{ uri: 'https://rukminim2.flixcart.com/image/240/240/xif0q/milk/x/d/c/fresh-toned-milk-500-ml-pack-of-1-toned-milk-amul-original-imah2yr8tysp2bwm.jpeg' }} 
+                <DiscountBadge percentage={52} containerStyle={styles.suggestionBadge} />
+                <Image
+                  source={{ uri: i === 3 ? 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90' : 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90' }}
                   style={styles.suggestionImage}
                   resizeMode="contain"
                 />
-                <Text style={styles.suggestionName}>Amul Toned Milk</Text>
-                <Text style={styles.suggestionPrice}>₹30</Text>
-                <TouchableOpacity style={styles.suggestionAdd}>
-                  <Plus size={14} color={COLORS.primary} />
+                <Text style={styles.suggestionBrand}>Tata Tea</Text>
+                <Text style={styles.suggestionName} numberOfLines={2}>Gold Premium Assam Tea Rich...</Text>
+                <Text style={styles.suggestionUnit}>1kg</Text>
+                <View style={styles.suggestionPriceRow}>
+                  <Text style={styles.suggestionPrice}>₹444</Text>
+                  <Text style={styles.suggestionOriginalPrice}>₹2444</Text>
+                </View>
+                <TouchableOpacity style={[styles.suggestionBtn, i < 3 && styles.suggestionBtnOptions]}>
+                  {i < 3 ? (
+                    <View style={styles.btnContent}>
+                      <Text style={styles.btnText}>2 options</Text>
+                      <ChevronDown size={14} color={COLORS.white} />
+                    </View>
+                  ) : (
+                    <Text style={styles.btnText}>Add</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             ))}
@@ -103,7 +122,7 @@ export const ReviewCartScreen = () => {
 
         {/* Address Selection */}
         <View style={styles.addressSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addressRow}
             onPress={() => (navigation as any).navigate('AddressSelection')}
           >
@@ -118,35 +137,32 @@ export const ReviewCartScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <CouponList onApply={() => {}} />
+        {/* Coupons */}
+        <CouponList onApply={() => { }} />
 
         {/* Cashback Banner */}
         <View style={styles.cashbackBanner}>
           <View style={styles.cashbackIcon}>
-             <Info size={16} color={COLORS.infoBlueText} />
+            <Info size={16} color={COLORS.infoBlueText} />
           </View>
           <Text style={styles.cashbackText}>
             Add items worth <Text style={styles.boldText}>₹45 more</Text> to get <Text style={styles.boldText}>1% cashback</Text>
           </Text>
         </View>
 
+        {/* Instructions */}
         <DeliveryInstructionsSelector />
 
-        <View style={styles.billSection}>
-          <PriceDetails />
-        </View>
+        {/* Bill Details */}
+        <PriceDetails />
 
-        {/* Final Savings Ribbon below bill */}
-        <InfoBanner 
-          message={`You are saving ₹${totalSavings} with this order!`} 
-          variant="info" 
-          style={styles.bottomRibbon}
-        />
 
-        <View style={styles.cancellationPolicy}>
-          <Text style={styles.policyTitle}>Cancellation Policy</Text>
+
+        {/* Cancellation Policy */}
+        <View style={styles.policySection}>
+          <Text style={styles.policyTitle}>Cancellation policy</Text>
           <Text style={styles.policyText}>
-            You can cancel your order for free within the first minutes. After that, a cancellation fee will apply.
+            You can cancel your order for free within the first 90 seconds. After that, a cancellation fee will apply.
           </Text>
         </View>
 
@@ -157,13 +173,13 @@ export const ReviewCartScreen = () => {
         <View style={styles.bottomContent}>
           <View>
             <Text style={styles.finalTotalValue}>₹{payableAmount}</Text>
-            <TouchableOpacity onPress={() => {}}>
-               <Text style={styles.viewBillText}>View Bill Details</Text>
+            <TouchableOpacity onPress={() => { }}>
+              <Text style={styles.viewBillText}>View Bill Details</Text>
             </TouchableOpacity>
           </View>
-          <Button 
-            title={isAuthenticated ? "Proceed" : "Login to Continue"} 
-            onPress={handleProceed} 
+          <Button
+            title={isAuthenticated ? "PROCEED" : "LOGIN TO CONTINUE"}
+            onPress={handleProceed}
             style={styles.finalBtn}
             disabled={items.some(item => !item.inStock)}
           />
@@ -181,27 +197,38 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  ribbon: {
+  topInfo: {
     marginVertical: 0,
     borderRadius: 0,
     justifyContent: 'center',
+    paddingVertical: SPACING.md,
   },
-  banner: {
-    margin: SPACING.md,
-    marginBottom: 0,
+  topWarning: {
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+    borderRadius: 12,
   },
   itemsSection: {
     backgroundColor: COLORS.white,
     marginTop: SPACING.md,
+    borderRadius: 12,
+    marginHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   suggestionSection: {
     backgroundColor: COLORS.white,
-    paddingVertical: SPACING.md,
+    paddingVertical: SPACING.lg,
     marginTop: SPACING.md,
+    borderRadius: 12,
+    marginHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   sectionTitle: {
-    fontSize: TYPOGRAPHY.size.sm,
-    fontWeight: TYPOGRAPHY.weight.bold as any,
+    fontSize: 14,
+    fontWeight: '800',
     color: COLORS.text,
     paddingHorizontal: SPACING.md,
     marginBottom: SPACING.md,
@@ -210,49 +237,90 @@ const styles = StyleSheet.create({
     paddingLeft: SPACING.md,
   },
   suggestionBox: {
-    width: 100,
+    width: 130,
     marginRight: SPACING.md,
-    alignItems: 'center',
-    paddingBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    borderRadius: 12,
+    padding: SPACING.sm,
+    position: 'relative',
+    backgroundColor: COLORS.white,
+  },
+  suggestionBadge: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
   },
   suggestionImage: {
-    width: 60,
-    height: 60,
-    backgroundColor: COLORS.background,
-    borderRadius: 8,
+    width: 80,
+    height: 80,
+    alignSelf: 'center',
     marginBottom: SPACING.xs,
+  },
+  suggestionBrand: {
+    fontSize: 9,
+    color: COLORS.textTertiary,
+    marginBottom: 2,
+    fontWeight: '600',
   },
   suggestionName: {
     fontSize: 10,
+    fontWeight: '700',
     color: COLORS.text,
-    textAlign: 'center',
-    height: 28,
+    height: 30,
+    lineHeight: 14,
+  },
+  suggestionUnit: {
+    fontSize: 9,
+    color: COLORS.textTertiary,
+    marginTop: 2,
+  },
+  suggestionPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 8,
   },
   suggestionPrice: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginVertical: 2,
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.text,
   },
-  suggestionAdd: {
-    position: 'absolute',
-    top: 45,
-    right: 15,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: 4,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
+  suggestionOriginalPrice: {
+    fontSize: 9,
+    color: COLORS.textTertiary,
+    textDecorationLine: 'line-through',
+    marginLeft: 6,
+  },
+  suggestionBtn: {
+    backgroundColor: '#4E8C2F',
+    paddingVertical: 8,
+    borderRadius: 8,
     alignItems: 'center',
-    elevation: 2,
+  },
+  suggestionBtnOptions: {
+    backgroundColor: '#529734',
+  },
+  btnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: '800',
+    marginRight: 4,
   },
   addressSection: {
     backgroundColor: COLORS.white,
     padding: SPACING.md,
     marginTop: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.divider,
+    borderRadius: 12,
+    marginHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   addressRow: {
     flexDirection: 'row',
@@ -263,19 +331,19 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
   addressTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
     color: COLORS.text,
   },
   addressSnippet: {
-    fontSize: 10,
-    color: COLORS.textSecondary,
+    fontSize: 11,
+    color: COLORS.textTertiary,
     marginTop: 2,
   },
   changeText: {
     fontSize: 12,
     color: COLORS.primary,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   cashbackBanner: {
     flexDirection: 'row',
@@ -286,43 +354,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.divider,
     marginHorizontal: SPACING.md,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   cashbackIcon: {
     marginRight: SPACING.sm,
   },
   cashbackText: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.text,
     flex: 1,
   },
   boldText: {
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
-  billSection: {
+  policySection: {
     backgroundColor: COLORS.white,
-    marginTop: SPACING.md,
-  },
-  bottomRibbon: {
-    marginHorizontal: SPACING.md,
-    borderRadius: 8,
-    marginTop: -SPACING.lg,
-    zIndex: 1,
-  },
-  cancellationPolicy: {
     padding: SPACING.lg,
-    paddingTop: SPACING.xl,
+    marginTop: SPACING.md,
+    borderRadius: 12,
+    marginHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   policyTitle: {
-    fontSize: TYPOGRAPHY.size.xs,
-    fontWeight: 'bold',
-    color: COLORS.textTertiary,
-    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: 6,
   },
   policyText: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.textTertiary,
-    lineHeight: 14,
+    lineHeight: 16,
   },
   bottomBar: {
     position: 'absolute',
@@ -341,35 +404,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   finalTotalValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '900',
     color: COLORS.text,
   },
   viewBillText: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.primary,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   finalBtn: {
-    minWidth: 140,
-    borderRadius: 8,
+    minWidth: '55%',
+    // borderRadius: 12,
+    height: 48,
   },
-  ootBanner: {
-    backgroundColor: '#FFE5E5',
-    padding: SPACING.md,
-    borderRadius: 8,
-    margin: SPACING.md,
-    borderWidth: 1,
-    borderColor: '#FFB2B2',
+  emptyContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  ootTitle: {
-    color: COLORS.error,
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 2,
+  emptyContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
   },
-  ootText: {
-    color: COLORS.error,
-    fontSize: 10,
+  emptyIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#D6F4F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.sm,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: COLORS.textTertiary,
+    textAlign: 'center',
+    marginBottom: SPACING.xl,
+    lineHeight: 20,
+  },
+  emptyBtn: {
+    width: '100%',
+    backgroundColor: COLORS.navTeal,
   },
 });

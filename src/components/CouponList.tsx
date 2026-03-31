@@ -1,40 +1,86 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Ticket, ChevronRight } from 'lucide-react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../theme/constants';
+import { ChevronRight, CheckCircle2 } from 'lucide-react-native';
+import { COLORS, SPACING } from '../theme/constants';
 
 interface Coupon {
   id: string;
   code: string;
   discount: string;
   description: string;
+  subtext?: string;
   isApplied: boolean;
 }
 
 export const DUMMY_COUPONS: Coupon[] = [
-  { id: '1', code: 'ABCDEFGHI', discount: '₹250 OFF', description: 'Upto ₹120 on orders above ₹1200', isApplied: true },
-  { id: '2', code: 'ABCDEFGHI', discount: '8% OFF', description: 'Upto ₹120 on orders above ₹1200', isApplied: false },
-  { id: '3', code: 'ABCDEFGHI', discount: '8% OFF', description: 'Upto ₹120 on orders above ₹1200', isApplied: false },
+  {
+    id: '1',
+    code: 'ABCDEFGHI',
+    discount: '₹250 \n OFF',
+    description: 'Add items worth ₹20 to avail this offer',
+    isApplied: false
+  },
+  {
+    id: '2',
+    code: 'ABCDEFGHI',
+    discount: '₹250 \n OFF',
+    description: 'Upto ₹120 on orders above ₹1200',
+    isApplied: true
+  },
+  {
+    id: '3',
+    code: 'ABCDEFGHI',
+    discount: '₹250 \n OFF',
+    description: 'Upto ₹120 on orders above ₹1200',
+    isApplied: false
+  },
 ];
+
+// Custom Teal Star Icon from Figma
+const TealStar = () => (
+  <View style={styles.tealStar}>
+    <View style={styles.tealStarInner} />
+  </View>
+);
 
 export const CouponCard: React.FC<{ coupon: Coupon; onApply: (id: string) => void }> = ({ coupon, onApply }) => {
   return (
-    <View style={styles.card}>
-      <View style={styles.discountBadge}>
-        <Text style={styles.discountText}>{coupon.discount}</Text>
+    <View style={styles.cardWrapper}>
+      {/* The overlapping circular badge */}
+      <View style={styles.circularBadge}>
+        <Text style={styles.circularBadgeText}>{coupon.discount}</Text>
       </View>
-      <Text style={styles.descriptionText}>{coupon.description}</Text>
-      <View style={styles.codeContainer}>
-        <Text style={styles.codeText}>{coupon.code}</Text>
-      </View>
-      <TouchableOpacity 
-        style={[styles.applyButton, coupon.isApplied && styles.appliedButton]} 
-        onPress={() => onApply(coupon.id)}
-      >
-        <Text style={[styles.applyButtonText, coupon.isApplied && styles.appliedButtonText]}>
-          {coupon.isApplied ? '✓ Applied' : 'APPLY'}
+
+      <View style={[styles.card, coupon.isApplied && styles.appliedCard]}>
+        {/* Ticket Punch Holes */}
+        <View style={styles.leftPunch} />
+        <View style={styles.rightPunch} />
+
+        <Text style={[
+          styles.descriptionText,
+          coupon.id === '1' && { color: COLORS.error }
+        ]}>
+          {coupon.description}
         </Text>
-      </TouchableOpacity>
+
+        <View style={styles.codeContainer}>
+          <Text style={styles.codeText}>{coupon.code}</Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.applyButton, coupon.isApplied && styles.appliedButton]}
+          onPress={() => onApply(coupon.id)}
+        >
+          {coupon.isApplied ? (
+            <View style={styles.appliedButtonContent}>
+              <CheckCircle2 size={12} color={COLORS.white} style={{ marginRight: 4 }} />
+              <Text style={styles.appliedButtonText}>APPLIED</Text>
+            </View>
+          ) : (
+            <Text style={styles.applyButtonText}>APPLY</Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -43,22 +89,33 @@ export const CouponList: React.FC<{ onApply: (id: string) => void }> = ({ onAppl
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Ticket size={18} color={COLORS.infoBlueText} />
-          <Text style={styles.title}>Top coupons for you</Text>
-        </View>
-        <ChevronRight size={18} color={COLORS.textTertiary} />
+        <TealStar />
+        <Text style={styles.title}>Top coupons for you</Text>
+        <TealStar />
       </View>
-      
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
+
+      <View style={styles.dashedLine} />
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {DUMMY_COUPONS.map((coupon) => (
           <CouponCard key={coupon.id} coupon={coupon} onApply={onApply} />
         ))}
       </ScrollView>
+
+      <View style={styles.dashedLine} />
+
+      {/* Savings Summary Banner */}
+      <View style={styles.savingsBanner}>
+        <Text style={styles.savingsBannerText}>
+          🥳 You are <Text style={styles.boldText}>saving ₹250</Text> with this coupon! 🥳
+        </Text>
+      </View>
+
+      <View style={[styles.dashedLine, { marginTop: SPACING.md }]} />
 
       <TouchableOpacity style={styles.viewMore}>
         <Text style={styles.viewMoreText}>View more coupons and offers</Text>
@@ -70,106 +127,186 @@ export const CouponList: React.FC<{ onApply: (id: string) => void }> = ({ onAppl
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: SPACING.lg,
+    paddingVertical: SPACING.md,
     backgroundColor: COLORS.white,
     marginTop: SPACING.md,
+    borderRadius: 16,
+    marginHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: SPACING.md,
     marginBottom: SPACING.md,
   },
-  titleRow: {
-    flexDirection: 'row',
+  tealStar: {
+    width: 18,
+    height: 18,
+    backgroundColor: '#007C7C',
+    borderRadius: 4,
+    justifyContent: 'center',
     alignItems: 'center',
+    transform: [{ rotate: '45deg' }],
+  },
+  tealStarInner: {
+    width: 8,
+    height: 8,
+    backgroundColor: COLORS.white,
+    borderRadius: 2,
   },
   title: {
-    fontSize: TYPOGRAPHY.size.sm,
-    fontWeight: TYPOGRAPHY.weight.bold as any,
-    color: COLORS.text,
-    marginLeft: SPACING.sm,
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.navTeal,
+    marginHorizontal: SPACING.sm,
+  },
+  dashedLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.divider,
+    borderStyle: 'dashed',
+    marginHorizontal: SPACING.md,
   },
   scrollContent: {
     paddingHorizontal: SPACING.md,
-    gap: SPACING.md,
+    paddingTop: 32, // Space for circular overlapping badges
+    paddingBottom: SPACING.md,
   },
-  card: {
-    width: 140,
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.sm,
+  cardWrapper: {
+    width: 120,
+    marginRight: SPACING.md,
     alignItems: 'center',
   },
-  discountBadge: {
-    backgroundColor: COLORS.infoBlue,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    marginBottom: SPACING.xs,
+  circularBadge: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#007C7C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: -22, // Positioning to overlap the top of the card
+    zIndex: 6,
+    borderWidth: 2,
+    borderColor: COLORS.white,
   },
-  discountText: {
-    fontSize: TYPOGRAPHY.size.xs,
-    fontWeight: TYPOGRAPHY.weight.bold as any,
-    color: COLORS.infoBlueText,
+  circularBadgeText: {
+    color: COLORS.white,
+    fontSize: 9,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  card: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    padding: SPACING.sm,
+    paddingTop: 24, // Internal space for the badge
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden', // Required for punch hole effect
+  },
+  leftPunch: {
+    position: 'absolute',
+    left: -10,
+    top: '50%',
+    marginTop: -10,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.background, // Match screen background
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    zIndex: 1,
+  },
+  rightPunch: {
+    position: 'absolute',
+    right: -10,
+    top: '50%',
+    marginTop: -10,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    zIndex: 1,
+  },
+  appliedCard: {
+    borderColor: '#FFBB99',
   },
   descriptionText: {
-    fontSize: 10,
+    fontSize: 9,
     color: COLORS.textSecondary,
     textAlign: 'center',
     marginBottom: SPACING.sm,
     height: 28,
+    fontWeight: '600',
   },
   codeContainer: {
-    backgroundColor: COLORS.background,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderStyle: 'dashed' as any,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     marginBottom: SPACING.sm,
   },
   codeText: {
-    fontSize: 10,
-    fontFamily: 'monospace',
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.text,
   },
   applyButton: {
     width: '100%',
-    paddingVertical: 6,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
+    paddingVertical: 8,
+    borderRadius: 8,
     alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.divider,
+    borderStyle: 'dashed',
   },
   appliedButton: {
-    backgroundColor: COLORS.badgeGreen,
-    borderColor: COLORS.primary,
+    backgroundColor: '#FF8844',
+    borderTopWidth: 0,
+    borderRadius: 8,
   },
   applyButtonText: {
-    fontSize: 10,
-    fontWeight: TYPOGRAPHY.weight.bold as any,
-    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FF8844',
+  },
+  appliedButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   appliedButtonText: {
-    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.white,
+  },
+  savingsBanner: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: SPACING.sm,
+  },
+  savingsBannerText: {
+    fontSize: 13,
+    color: '#007C7C',
+    fontWeight: '600',
+  },
+  boldText: {
+    fontWeight: '800',
   },
   viewMore: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    marginTop: SPACING.md,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingTop: SPACING.sm,
+    marginTop: SPACING.sm,
   },
   viewMoreText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: COLORS.textTertiary,
+    fontWeight: '600',
+    marginRight: 4,
   },
 });

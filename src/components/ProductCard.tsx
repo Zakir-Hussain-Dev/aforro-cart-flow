@@ -1,18 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Plus, Minus } from 'lucide-react-native';
+import { Plus, Minus, ChevronDown } from 'lucide-react-native';
 import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../theme/constants';
 import { Product, useCart } from '../context/CartContext';
+import { DiscountBadge } from './DiscountBadge';
 
 interface ProductCardProps {
-  product: Product;
+  product: any;
   horizontal?: boolean;
+  onPressOptions?: () => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ 
-  product, 
-  horizontal = false 
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  horizontal = false,
+  onPressOptions
 }) => {
   const navigation = useNavigation();
   const { items, addToCart, updateQuantity } = useCart();
@@ -24,21 +27,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <TouchableOpacity 
-      style={[styles.container, horizontal && styles.horizontalContainer]} 
+    <TouchableOpacity
+      style={[styles.container, horizontal && styles.horizontalContainer]}
       onPress={handlePress}
       activeOpacity={0.8}
     >
       <View style={[styles.imageContainer, horizontal && styles.horizontalImageContainer]}>
-        {product.originalPrice && product.originalPrice > product.price && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>52% OFF</Text>
-          </View>
+        {(product.originalPrice && product.originalPrice > product.price) && (
+          <DiscountBadge percentage={52} containerStyle={styles.badge} />
         )}
-        <Image 
-          source={{ uri: product.image }} 
-          style={styles.image} 
-          resizeMode="contain" 
+        <Image
+          source={{ uri: product.image }}
+          style={styles.image}
+          resizeMode="contain"
         />
         {!product.inStock && (
           <View style={styles.outOfStockBadge}>
@@ -48,46 +49,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.brand}>Cadbury</Text>
-        <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
-        <Text style={styles.unit}>{product.unit}</Text>
+        <View>
+          <Text style={styles.brand}>{product.brand || 'Aforro'}</Text>
+          <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
+          <Text style={styles.unit}>{product.unit}</Text>
+        </View>
 
         <View style={styles.footer}>
           <View style={styles.priceContainer}>
             <Text style={styles.price}>₹{product.price}</Text>
-            {product.originalPrice && product.originalPrice > product.price && (
+            {product.originalPrice && (
               <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
             )}
           </View>
 
-          {product.inStock && (
-            <View style={styles.controls}>
-              {quantity > 0 ? (
-                <View style={styles.quantityControl}>
-                  <TouchableOpacity 
-                    onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity - 1); }}
-                    style={styles.quantityBtn}
-                  >
-                    <Minus size={14} color={COLORS.primary} strokeWidth={3} />
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>{quantity}</Text>
-                  <TouchableOpacity 
-                    onPress={(e) => { e.stopPropagation(); addToCart(product); }}
-                    style={styles.quantityBtn}
-                  >
-                    <Plus size={14} color={COLORS.primary} strokeWidth={3} />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity 
-                  style={styles.addButton} 
-                  onPress={(e) => { e.stopPropagation(); addToCart(product); }}
+          <View style={styles.controls}>
+            {product.variations ? (
+              <TouchableOpacity
+                style={styles.optionsButton}
+                onPress={(e) => { e.stopPropagation(); onPressOptions?.(); }}
+              >
+                <Text style={styles.optionsButtonText}>2 options</Text>
+                <ChevronDown size={14} color={COLORS.white} />
+              </TouchableOpacity>
+            ) : quantity > 0 ? (
+              <View style={styles.quantityControl}>
+                <TouchableOpacity
+                  onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, quantity - 1); }}
+                  style={styles.quantityBtn}
                 >
-                  <Text style={styles.addButtonText}>Add</Text>
+                  <Minus size={14} color="#55913D" strokeWidth={3} />
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
+                <Text style={styles.quantityText}>{quantity}</Text>
+                <TouchableOpacity
+                  onPress={(e) => { e.stopPropagation(); addToCart(product); }}
+                  style={styles.quantityBtn}
+                >
+                  <Plus size={14} color="#55913D" strokeWidth={3} />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={(e) => { e.stopPropagation(); addToCart(product); }}
+              >
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -98,12 +107,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.white,
     borderRadius: 12,
-    padding: SPACING.sm,
-    width: 156,
+    padding: SPACING.md,
+    width: 160,
     marginRight: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.divider,
-    overflow: 'hidden',
+    borderColor: '#F0F0F0',
   },
   horizontalContainer: {
     flexDirection: 'row',
@@ -112,11 +120,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   imageContainer: {
-    height: 120,
+    height: 100,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.sm,
     position: 'relative',
   },
   horizontalImageContainer: {
@@ -127,22 +135,13 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -SPACING.sm,
-    left: -SPACING.sm,
-    backgroundColor: COLORS.infoBlueText,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderBottomRightRadius: 8,
-    zIndex: 1,
-  },
-  badgeText: {
-    color: COLORS.white,
-    fontSize: 9,
-    fontWeight: 'bold',
+    top: -10,
+    left: -10,
+    zIndex: 10,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: '90%',
+    height: '90%',
   },
   outOfStockBadge: {
     position: 'absolute',
@@ -167,32 +166,34 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: COLORS.textTertiary,
     marginBottom: 2,
+    fontWeight: '500',
   },
   name: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: COLORS.text,
-    height: 32,
-    lineHeight: 16,
-    marginBottom: 2,
+    height: 30,
+    lineHeight: 15,
+    marginBottom: 4,
   },
   unit: {
     fontSize: 10,
     color: COLORS.textTertiary,
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.sm,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    marginTop: 4,
   },
   priceContainer: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   price: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: '800',
     color: COLORS.text,
+    marginRight: 6,
   },
   originalPrice: {
     fontSize: 10,
@@ -200,40 +201,53 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
   },
   controls: {
-    alignItems: 'flex-end',
+    width: '100%',
   },
   addButton: {
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#55913D',
+    borderRadius: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
   },
   addButtonText: {
-    color: COLORS.primary,
-    fontWeight: 'bold',
+    color: COLORS.white,
+    fontWeight: '800',
     fontSize: 12,
+  },
+  optionsButton: {
+    backgroundColor: '#55913D',
+    borderRadius: 8,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  optionsButtonText: {
+    color: COLORS.white,
+    fontWeight: '800',
+    fontSize: 11,
+    marginRight: 4,
   },
   quantityControl: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: 4,
+    borderColor: '#55913D',
+    borderRadius: 8,
     backgroundColor: COLORS.white,
-    paddingHorizontal: 2,
-    paddingVertical: 2,
+    paddingVertical: 4,
+    justifyContent: 'center',
   },
   quantityBtn: {
-    padding: 2,
+    padding: 4,
   },
   quantityText: {
-    paddingHorizontal: 6,
-    color: COLORS.primary,
-    fontWeight: 'bold',
-    fontSize: 12,
-    minWidth: 20,
+    paddingHorizontal: 12,
+    color: '#55913D',
+    fontWeight: '900',
+    fontSize: 13,
+    minWidth: 32,
     textAlign: 'center',
   },
 });

@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             showCart && (
               <TouchableOpacity 
-                onPress={() => (navigation as any).navigate('Cart')}
+                onPress={() => (navigation as any).navigate('ReviewCart')}
                 style={styles.cartButton}
               >
                 <ShoppingCart color={COLORS.text} size={24} />

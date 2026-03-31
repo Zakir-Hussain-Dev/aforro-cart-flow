@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Minus, Plus, Trash2 } from 'lucide-react-native';
+import { Minus, Plus } from 'lucide-react-native';
 import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../theme/constants';
 import { CartItem as CartItemType, useCart } from '../context/CartContext';
 
@@ -9,7 +9,7 @@ interface CartItemProps {
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { updateQuantity, removeFromCart } = useCart();
+  const { updateQuantity } = useCart();
 
   return (
     <View style={styles.container}>
@@ -18,38 +18,33 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.titleArea}>
-            <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
-            <Text style={styles.unit}>{item.unit}</Text>
-          </View>
-          <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.removeBtn}>
-            <Trash2 size={18} color={COLORS.error} />
-          </TouchableOpacity>
+        <View style={styles.infoArea}>
+          <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
+          <Text style={styles.unit}>{item.unit}</Text>
         </View>
 
-        <View style={styles.footer}>
-          <View style={styles.priceContainer}>
-            <Text style={styles.price}>₹{item.price}</Text>
-            {item.originalPrice && (
-              <Text style={styles.originalPrice}>₹{item.originalPrice}</Text>
-            )}
-          </View>
-
+        <View style={styles.rightArea}>
           <View style={styles.quantityControl}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
               style={styles.quantityBtn}
             >
               <Minus size={14} color={COLORS.primary} strokeWidth={3} />
             </TouchableOpacity>
             <Text style={styles.quantityText}>{item.quantity}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => updateQuantity(item.id, item.quantity + 1)}
               style={styles.quantityBtn}
             >
               <Plus size={14} color={COLORS.primary} strokeWidth={3} />
             </TouchableOpacity>
+          </View>
+
+          <View style={styles.priceContainer}>
+            <Text style={styles.price}>₹{item.price}</Text>
+            {item.originalPrice && (
+              <Text style={styles.originalPrice}>₹{item.originalPrice}</Text>
+            )}
           </View>
         </View>
       </View>
@@ -65,36 +60,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
+    alignItems: 'center',
   },
   imageContainer: {
-    width: 60,
-    height: 60,
+    width: 64,
+    height: 64,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,
     borderWidth: 1,
     borderColor: COLORS.divider,
     borderRadius: 8,
+    padding: 4,
   },
   image: {
-    width: '90%',
-    height: '90%',
+    width: '100%',
+    height: '100%',
   },
   content: {
     flex: 1,
-    justifyContent: 'space-between',
-  },
-  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  titleArea: {
+  infoArea: {
     flex: 1,
+    paddingRight: SPACING.sm,
   },
   name: {
-    fontSize: TYPOGRAPHY.size.sm,
-    fontWeight: TYPOGRAPHY.weight.semiBold as any,
+    fontSize: 13,
+    fontWeight: '700',
     color: COLORS.text,
     lineHeight: 18,
   },
@@ -102,23 +97,41 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textTertiary,
     marginTop: 2,
+    fontWeight: '600',
   },
-  removeBtn: {
-    padding: 2,
+  rightArea: {
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
   },
-  footer: {
+  quantityControl: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: SPACING.xs,
+    borderWidth: 1,
+    borderColor: '#4E8C2F', // Greenish from Figma
+    borderRadius: 6,
+    paddingHorizontal: 2,
+    paddingVertical: 2,
+    backgroundColor: COLORS.white,
+    marginBottom: 8,
+  },
+  quantityBtn: {
+    padding: 4,
+  },
+  quantityText: {
+    paddingHorizontal: 8,
+    color: '#4E8C2F',
+    fontWeight: '800',
+    fontSize: 12,
+    minWidth: 24,
+    textAlign: 'center',
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   price: {
-    fontSize: TYPOGRAPHY.size.sm,
-    fontWeight: TYPOGRAPHY.weight.bold as any,
+    fontSize: 14,
+    fontWeight: '800',
     color: COLORS.text,
   },
   originalPrice: {
@@ -126,26 +139,5 @@ const styles = StyleSheet.create({
     color: COLORS.textTertiary,
     textDecorationLine: 'line-through',
     marginLeft: 6,
-  },
-  quantityControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: 4,
-    paddingHorizontal: 2,
-    paddingVertical: 2,
-    backgroundColor: COLORS.white,
-  },
-  quantityBtn: {
-    padding: 4,
-  },
-  quantityText: {
-    paddingHorizontal: 8,
-    color: COLORS.primary,
-    fontWeight: 'bold',
-    fontSize: 12,
-    minWidth: 24,
-    textAlign: 'center',
   },
 });

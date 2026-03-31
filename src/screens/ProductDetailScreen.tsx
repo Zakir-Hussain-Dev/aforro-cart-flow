@@ -1,44 +1,74 @@
-import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  ScrollView, 
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
   SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
+  Dimensions,
+  Share
 } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { Minus, Plus } from 'lucide-react-native';
-import { Header } from '../components/Header';
+import { ChevronLeft, Share2, ChevronDown, ShoppingCart } from 'lucide-react-native';
+import { ProductCard } from '../components/ProductCard';
+import { ProductVariationsModal } from '../components/ProductVariationsModal';
 import { Button } from '../components/Button';
-import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../theme/constants';
+import { DiscountBadge } from '../components/DiscountBadge';
+import { COLORS, SPACING, TYPOGRAPHY } from '../theme/constants';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { useCart, Product } from '../context/CartContext';
-
-// For simplicity, we define the product lookup here or reuse the dummy data
-const DUMMY_PRODUCTS: Product[] = [
+export const DUMMY_PRODUCTS: (Product & { brand?: string; relatedIds?: string[]; variations?: any[] })[] = [
   {
     id: '1',
-    name: 'Dairy Milk Silk Bubbly Chocolate Bar',
-    description: 'Enjoy the smooth and creamy taste of Cadbury Dairy Milk Silk with a unique bubbly center. Every bite of this silk chocolate is designed to melt in your mouth, giving you a smooth and velvety texture. It\'s the perfect treat for chocolate lovers who crave something extra special.',
-    price: 80,
-    originalPrice: 90,
-    unit: '50g',
-    image: 'https://m.media-amazon.com/images/I/61mI0N+5eGL._SL1000_.jpg',
+    brand: 'Cadbury',
+    name: 'Dairy milk Silk Chocolate Bar\nDairy milk Silk Chocolate Bar',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    price: 444,
+    originalPrice: 444,
+    unit: '64 g',
+    image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90',
     inStock: true,
     category: 'Chocolates',
+    relatedIds: ['101', '102', '103'],
+    variations: [
+      { id: 'v1', name: '3 x 1kg', price: 444, originalPrice: 2444, image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90', count: 3 },
+      { id: 'v2', name: '1 x 1kg', price: 150, originalPrice: 800, image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90', count: 1 },
+    ]
   },
   {
-    id: '2',
-    name: 'Cadbury Celebrations Gift Pack',
-    description: 'Cadbury Celebrations Gift Pack is a premium collection of assorted chocolates, making it an ideal gift for festivals and special occasions. This pack contains a variety of classic Cadbury flavors that will delight any chocolate enthusiast.',
-    price: 150,
-    originalPrice: 175,
-    unit: '118g',
-    image: 'https://m.media-amazon.com/images/I/71uK5S6lH6L._SL1500_.jpg',
+    id: '101',
+    brand: 'Tata Tea',
+    name: 'Gold Premium\nAssam Tea Rich...',
+    price: 444,
+    originalPrice: 2444,
+    unit: '1kg',
+    image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90',
     inStock: true,
-    category: 'Chocolates',
+    category: 'Tea',
+  },
+  {
+    id: '102',
+    brand: 'Tata Tea',
+    name: 'Gold Premium\nAssam Tea Rich...',
+    price: 444,
+    originalPrice: 2444,
+    unit: '1kg',
+    image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90',
+    inStock: true,
+    category: 'Tea',
+  },
+  {
+    id: '103',
+    brand: 'Tata Tea',
+    name: 'Organic apple',
+    price: 444,
+    originalPrice: 2444,
+    unit: '1kg',
+    image: 'https://rukminim2.flixcart.com/image/2880/2880/xif0q/chocolate/o/z/0/-original-imah2yr8tysp2bwm.jpeg?q=90',
+    inStock: true,
+    category: 'Fruit',
   },
 ];
 
@@ -46,284 +76,354 @@ export const ProductDetailScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'ProductDetail'>>();
   const navigation = useNavigation();
   const { productId } = route.params;
-  const { items, addToCart, updateQuantity } = useCart();
+  const { items, addToCart, itemCount, payableAmount } = useCart();
+  
+  const [modalVisible, setModalVisible] = useState(false);
 
   const product = DUMMY_PRODUCTS.find(p => p.id === productId) || DUMMY_PRODUCTS[0];
-  const cartItem = items.find(item => item.id === product.id);
-  const quantity = cartItem?.quantity || 0;
+  const relatedProducts = DUMMY_PRODUCTS.filter(p => product.relatedIds?.includes(p.id));
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out ${product.name} on Aforro!`,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Header title="Product Details" />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.imageContainer}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>52% OFF</Text>
-          </View>
-          <Image 
-            source={{ uri: product.image }} 
-            style={styles.image} 
-            resizeMode="contain" 
-          />
-          <View style={styles.pagination}>
-            <View style={[styles.dot, styles.activeDot]} />
-            <View style={styles.dot} />
-            <View style={styles.dot} />
-          </View>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.brand}>Cadbury</Text>
-          <Text style={styles.name}>{product.name}</Text>
-          <Text style={styles.unit}>{product.unit}</Text>
-
-          <View style={styles.priceRow}>
-            <View style={styles.priceContainer}>
-              <Text style={styles.price}>₹{product.price}</Text>
-              {product.originalPrice && (
-                <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
+      {/* Custom Header */}
+      <SafeAreaView style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+            <ChevronLeft size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} numberOfLines={1}>{product.name}</Text>
+          <TouchableOpacity onPress={handleShare} style={styles.headerBtn}>
+            <Share2 size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => (navigation as any).navigate('ReviewCart')} 
+            style={styles.headerBtn}
+          >
+            <View style={styles.cartIconWrapper}>
+              <ShoppingCart size={24} color={COLORS.text} />
+              {itemCount > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{itemCount}</Text>
+                </View>
               )}
             </View>
-            {product.originalPrice && (
-               <View style={styles.discountBadge}>
-                  <Text style={styles.discountBadgeText}>52% OFF</Text>
-               </View>
-            )}
-          </View>
-
-          <View style={styles.divider} />
-
-          <Text style={styles.sectionTitle}>Product Description</Text>
-          <Text style={styles.description}>{product.description}</Text>
-
-          <View style={styles.benefits}>
-            <BenefitItem text="100% Genuine product" />
-            <BenefitItem text="Express delivery in 30 mins" />
-            <BenefitItem text="Easy replacement policy" />
-          </View>
+          </TouchableOpacity>
         </View>
-        <View style={{ height: 100 }} />
-      </ScrollView>
+      </SafeAreaView>
 
-      <SafeAreaView style={styles.bottomBar}>
-        {quantity > 0 ? (
-          <View style={styles.bottomContent}>
-            <View style={styles.quantityControl}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Main Product Card */}
+        <View style={styles.card}>
+          <View style={styles.heroImageContainer}>
+            <DiscountBadge percentage={52} containerStyle={styles.heroBadge} />
+            <Image source={{ uri: product.image }} style={styles.heroImage} resizeMode="contain" />
+            <View style={styles.pagination}>
+              <View style={[styles.dot, { backgroundColor: '#FF8844', width: 12 }]} />
+              {[1, 2, 3, 4].map(i => <View key={i} style={styles.dot} />)}
+            </View>
+          </View>
+          
+          <View style={styles.heroInfo}>
+            <Text style={styles.brand}>{product.brand || 'Cadbury'}</Text>
+            <Text style={styles.name}>{product.name}</Text>
+            
+            <View style={styles.priceRow}>
+              <View>
+                <Text style={styles.unit}>{product.unit}</Text>
+                <View style={[styles.flexRow, { alignItems: 'center' }]}>
+                   <Text style={styles.price}>₹{product.price}</Text>
+                   <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
+                </View>
+              </View>
+
               <TouchableOpacity 
-                onPress={() => updateQuantity(product.id, quantity - 1)}
-                style={styles.quantityBtn}
+                style={styles.optionsButton} 
+                onPress={() => setModalVisible(true)}
               >
-                <Minus size={20} color={COLORS.primary} strokeWidth={3} />
-              </TouchableOpacity>
-              <Text style={styles.quantityText}>{quantity}</Text>
-              <TouchableOpacity 
-                onPress={() => addToCart(product)}
-                style={styles.quantityBtn}
-              >
-                <Plus size={20} color={COLORS.primary} strokeWidth={3} />
+                <Text style={styles.optionsButtonText}>2 options</Text>
+                <ChevronDown size={14} color={COLORS.white} />
               </TouchableOpacity>
             </View>
-            <Button 
-               title="View Cart" 
-               onPress={() => (navigation as any).navigate('ReviewCart')} 
-               style={styles.viewCartBtn}
-            />
           </View>
-        ) : (
-          <Button 
-            title={product.inStock ? "Add to Cart" : "Out of Stock"} 
-            onPress={() => addToCart(product)} 
-            disabled={!product.inStock}
-            style={styles.addBtn}
-          />
-        )}
-      </SafeAreaView>
+        </View>
+
+        {/* Similar Products */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Similar product</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+            {relatedProducts.map(p => (
+              <ProductCard 
+                key={p.id} 
+                product={p} 
+                onPressOptions={() => setModalVisible(true)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Description */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description}>{product.description}</Text>
+        </View>
+
+        {/* Customers also bought */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Customers also bought</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+            {relatedProducts.map(p => (
+              <ProductCard 
+                key={p.id} 
+                product={p} 
+                onPressOptions={() => setModalVisible(true)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+        
+        <View style={{ height: 40 }} />
+      </ScrollView>
+
+      {/* Variations Modal */}
+      <ProductVariationsModal 
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        productName={product.name}
+        variations={product.variations || []}
+      />
+
+      {/* Floating View Cart Bar */}
+      {itemCount > 0 && (
+        <SafeAreaView style={styles.floatingCartBar}>
+          <TouchableOpacity 
+            style={styles.cartBarContent}
+            onPress={() => (navigation as any).navigate('ReviewCart')}
+          >
+            <View>
+              <Text style={styles.cartBarCount}>{itemCount} ITEM{itemCount > 1 ? 'S' : ''}</Text>
+              <Text style={styles.cartBarTotal}>₹{payableAmount} plus taxes</Text>
+            </View>
+            <View style={styles.viewCartAction}>
+              <Text style={styles.viewCartText}>View Cart</Text>
+              <ShoppingCart size={20} color={COLORS.white} />
+            </View>
+          </TouchableOpacity>
+        </SafeAreaView>
+      )}
     </View>
   );
 };
 
-const BenefitItem = ({ text }: { text: string }) => (
-  <View style={styles.benefitRow}>
-    <View style={styles.benefitDot} />
-    <Text style={styles.benefitText}>{text}</Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#F8F8F8',
   },
-  imageContainer: {
-    width: '100%',
-    height: 300,
+  header: {
     backgroundColor: COLORS.white,
-    padding: SPACING.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+  },
+  headerBtn: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.md,
+  },
+  scrollContent: {
+    paddingVertical: SPACING.md,
+  },
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    marginHorizontal: SPACING.md,
+    marginBottom: SPACING.md,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    overflow: 'hidden',
+  },
+  heroImageContainer: {
+    height: 280,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: SPACING.lg,
     position: 'relative',
   },
-  badge: {
+  heroImage: {
+    width: '85%',
+    height: '85%',
+  },
+  heroBadge: {
     position: 'absolute',
-    top: SPACING.md,
-    left: SPACING.md,
-    backgroundColor: COLORS.infoBlueText,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    zIndex: 1,
-  },
-  badgeText: {
-    color: COLORS.white,
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
+    top: -SPACING.md,
+    left: -SPACING.md,
+    zIndex: 10,
   },
   pagination: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: SPACING.md,
+    bottom: 0,
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.divider,
-    marginHorizontal: 3,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 4,
   },
-  activeDot: {
-    backgroundColor: COLORS.primary,
-    width: 12,
-  },
-  content: {
-    padding: SPACING.lg,
-    backgroundColor: COLORS.white,
+  heroInfo: {
+    marginTop: SPACING.md,
   },
   brand: {
     fontSize: 12,
-    color: COLORS.primary,
-    fontWeight: 'bold',
+    color: COLORS.textTertiary,
     marginBottom: 4,
+    fontWeight: '500',
   },
   name: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '800',
     color: COLORS.text,
-    marginBottom: 4,
-  },
-  unit: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.md,
+    lineHeight: 24,
+    marginBottom: 12,
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
   },
-  priceContainer: {
+  flexRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+  },
+  unit: {
+    fontSize: 12,
+    color: COLORS.textTertiary,
+    marginBottom: 4,
+    fontWeight: '600',
   },
   price: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '900',
     color: COLORS.text,
+    marginRight: 8,
   },
   originalPrice: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
+    fontSize: 14,
+    color: COLORS.textTertiary,
     textDecorationLine: 'line-through',
-    marginLeft: 8,
   },
-  discountBadge: {
-    backgroundColor: COLORS.lightGreen,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+  optionsButton: {
+    backgroundColor: '#55913D',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  discountBadgeText: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.divider,
-    marginVertical: SPACING.lg,
+  optionsButtonText: {
+    color: COLORS.white,
+    fontWeight: '800',
+    fontSize: 14,
+    marginRight: 6,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: COLORS.text,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  horizontalScroll: {
+    paddingBottom: 4,
   },
   description: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    marginBottom: SPACING.lg,
+    fontSize: 13,
+    color: COLORS.textTertiary,
+    lineHeight: 18,
   },
-  benefits: {
-    backgroundColor: COLORS.background,
-    padding: SPACING.md,
-    borderRadius: 8,
+  cartIconWrapper: {
+    position: 'relative',
   },
-  benefitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  benefitDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.primary,
-    marginRight: SPACING.sm,
-  },
-  benefitText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  bottomBar: {
+  cartBadge: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.divider,
-  },
-  bottomContent: {
-    flexDirection: 'row',
+    top: -8,
+    right: -8,
+    backgroundColor: '#55913D',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
+  cartBadgeText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  floatingCartBar: {
+    position: 'absolute',
+    bottom: SPACING.lg,
+    left: SPACING.md,
+    right: SPACING.md,
+    backgroundColor: '#55913D',
+    borderRadius: 16,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  cartBarContent: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
-  quantityControl: {
+  cartBarCount: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: '700',
+    opacity: 0.9,
+  },
+  cartBarTotal: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  viewCartAction: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.lightGreen,
-    borderRadius: 8,
-    padding: 2,
   },
-  quantityBtn: {
-    padding: 8,
-  },
-  quantityText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginHorizontal: SPACING.md,
-    color: COLORS.primary,
-  },
-  viewCartBtn: {
-    flex: 1,
-    marginLeft: SPACING.md,
-  },
-  addBtn: {
-    width: '100%',
+  viewCartText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '800',
+    marginRight: 8,
   },
 });

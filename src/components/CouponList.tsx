@@ -39,7 +39,7 @@ export const DUMMY_COUPONS: Coupon[] = [
 // Custom Teal Star Icon from Figma
 const TealStar = () => (
   <View style={styles.tealStar}>
-    <View style={styles.tealStarInner} />
+    <Text style={styles.tealStarText}>%</Text>
   </View>
 );
 
@@ -111,7 +111,7 @@ export const CouponList: React.FC<{ onApply: (id: string) => void }> = ({ onAppl
       {/* Savings Summary Banner */}
       <View style={styles.savingsBanner}>
         <Text style={styles.savingsBannerText}>
-          🥳 You are <Text style={styles.boldText}>saving ₹250</Text> with this coupon! 🥳
+          🎉 You are <Text style={styles.boldText}>saving ₹250</Text> with this coupon! 🎉
         </Text>
       </View>
 
@@ -142,13 +142,19 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   tealStar: {
-    width: 18,
-    height: 18,
-    backgroundColor: '#007C7C',
-    borderRadius: 4,
+    width: 22,
+    height: 22,
+    backgroundColor: COLORS.navTeal,
+    borderRadius: 5,
+    transform: [{ rotate: '45deg' }],
     justifyContent: 'center',
     alignItems: 'center',
-    transform: [{ rotate: '45deg' }],
+  },
+  tealStarText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: '800',
+    transform: [{ rotate: '-45deg' }],
   },
   tealStarInner: {
     width: 8,
@@ -299,9 +305,10 @@ const styles = StyleSheet.create({
   },
   viewMore: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: SPACING.sm,
+    marginHorizontal: SPACING.md,
   },
   viewMoreText: {
     fontSize: 12,

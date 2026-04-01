@@ -66,15 +66,15 @@ export const ReviewCartScreen = () => {
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {/* Top Info Banners */}
-        <InfoBanner
+        {/* <InfoBanner
           message={`You are saving ₹${totalSavings} with this order!`}
           variant="info"
           style={styles.topInfo}
-        />
+        /> */}
 
         <InfoBanner
-          message="Your order might be delayed due to high demand"
-          variant="warning"
+          message="You are saving ₹99 with this order!"
+          variant="info"
           style={styles.topWarning}
           icon={<Info size={16} color={COLORS.warningYellowText} />}
         />
@@ -120,34 +120,22 @@ export const ReviewCartScreen = () => {
           </ScrollView>
         </View>
 
-        {/* Address Selection */}
-        <View style={styles.addressSection}>
-          <TouchableOpacity
-            style={styles.addressRow}
-            onPress={() => (navigation as any).navigate('AddressSelection')}
-          >
-            <MapPin color={COLORS.infoBlueText} size={20} />
-            <View style={styles.addressInfo}>
-              <Text style={styles.addressTitle}>Deliver to Home</Text>
-              <Text style={styles.addressSnippet} numberOfLines={1}>
-                {selectedAddress ? `${selectedAddress.houseNo}, ${selectedAddress.area}` : 'Select a delivery address'}
-              </Text>
-            </View>
-            <Text style={styles.changeText}>Change</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Coupons */}
         <CouponList onApply={() => { }} />
 
         {/* Cashback Banner */}
         <View style={styles.cashbackBanner}>
-          <View style={styles.cashbackIcon}>
-            <Info size={16} color={COLORS.infoBlueText} />
+          <View style={styles.cashbackIconCircle}>
+            <Image
+              source={{ uri: 'https://c7.alamy.com/comp/2PPM009/cashback-icon-isolated-on-blue-background-cashback-or-money-back-label-vector-illustration-2PPM009.jpg' }}
+              style={styles.cashbackImage}
+              resizeMode="contain"
+            />
           </View>
-          <Text style={styles.cashbackText}>
-            Add items worth <Text style={styles.boldText}>₹45 more</Text> to get <Text style={styles.boldText}>1% cashback</Text>
-          </Text>
+          <View style={styles.cashbackContent}>
+            <Text style={styles.cashbackTitle}>Yay! You’ve received a cashback of ₹200</Text>
+            <Text style={styles.cashbackSubtitle}>The cashback will be added in your Aforro wallet</Text>
+          </View>
         </View>
 
         {/* Instructions */}
@@ -169,22 +157,42 @@ export const ReviewCartScreen = () => {
         <View style={{ height: 120 }} />
       </ScrollView>
 
-      <SafeAreaView style={styles.bottomBar}>
-        <View style={styles.bottomContent}>
-          <View>
-            <Text style={styles.finalTotalValue}>₹{payableAmount}</Text>
-            <TouchableOpacity onPress={() => { }}>
-              <Text style={styles.viewBillText}>View Bill Details</Text>
-            </TouchableOpacity>
+      <View style={styles.bottomBar}>
+        <SafeAreaView>
+          {/* Segment 1: Address */}
+          <TouchableOpacity
+            style={styles.bottomAddressRow}
+            onPress={() => (navigation as any).navigate('AddressSelection')}
+          >
+            <View style={styles.pinCircle}>
+              <MapPin color={COLORS.white} size={14} fill={COLORS.white} />
+            </View>
+            <View style={styles.bottomAddressInfo}>
+              <Text style={styles.bottomAddressLabel}>Deliver to</Text>
+              <Text style={styles.bottomAddressText} numberOfLines={1}>
+                {selectedAddress ? `${selectedAddress.houseNo}, ${selectedAddress.area}` : 'Select a delivery address'}
+              </Text>
+            </View>
+            <Text style={styles.bottomChangeText}>Change</Text>
+          </TouchableOpacity>
+
+          <View style={styles.bottomDivider} />
+
+          {/* Segment 2: Payment */}
+          <View style={styles.bottomContent}>
+            <View>
+              <Text style={styles.bottomPayLabel}>To Pay</Text>
+              <Text style={styles.bottomPayAmount}>₹{payableAmount}</Text>
+            </View>
+            <Button
+              title={isAuthenticated ? "PROCEED" : "Login to continue"}
+              onPress={handleProceed}
+              style={styles.finalBtn}
+              disabled={items.some(item => !item.inStock)}
+            />
           </View>
-          <Button
-            title={isAuthenticated ? "PROCEED" : "LOGIN TO CONTINUE"}
-            onPress={handleProceed}
-            style={styles.finalBtn}
-            disabled={items.some(item => !item.inStock)}
-          />
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </View>
     </View>
   );
 };
@@ -351,18 +359,45 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     marginTop: SPACING.md,
     alignItems: 'center',
+    marginHorizontal: SPACING.md,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.divider,
-    marginHorizontal: SPACING.md,
-    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-  cashbackIcon: {
-    marginRight: SPACING.sm,
+  cashbackIconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: COLORS.navTeal,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+    overflow: 'hidden',
   },
-  cashbackText: {
-    fontSize: 12,
-    color: COLORS.text,
+  cashbackImage: {
+    width: 30,
+    height: 30,
+    padding: 30
+  },
+  cashbackContent: {
     flex: 1,
+  },
+  cashbackTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.text,
+    lineHeight: 20,
+  },
+  cashbackSubtitle: {
+    fontSize: 10,
+    color: COLORS.textTertiary,
+    marginTop: 2,
   },
   boldText: {
     fontWeight: '800',
@@ -375,6 +410,7 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.md,
     borderWidth: 1,
     borderColor: COLORS.divider,
+    marginBottom: "20%",
   },
   policyTitle: {
     fontSize: 14,
@@ -393,30 +429,73 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.divider,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 20,
+  },
+  bottomAddressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  pinCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.navTeal,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  bottomAddressInfo: {
+    flex: 1,
+  },
+  bottomAddressLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  bottomAddressText: {
+    fontSize: 13,
+    color: COLORS.textTertiary,
+    marginTop: 2,
+  },
+  bottomChangeText: {
+    fontSize: 14,
+    color: '#4E8C2F',
+    fontWeight: '800',
+  },
+  bottomDivider: {
+    height: 1,
+    backgroundColor: COLORS.divider,
+    marginHorizontal: -SPACING.lg,
+    marginBottom: SPACING.md,
   },
   bottomContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingBottom: SPACING.xs,
   },
-  finalTotalValue: {
+  bottomPayLabel: {
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    marginBottom: 2,
+  },
+  bottomPayAmount: {
     fontSize: 22,
     fontWeight: '900',
     color: COLORS.text,
   },
-  viewBillText: {
-    fontSize: 11,
-    color: COLORS.primary,
-    fontWeight: '800',
-  },
   finalBtn: {
-    minWidth: '55%',
-    // borderRadius: 12,
-    height: 48,
+    minWidth: '60%',
   },
   emptyContainer: {
     flex: 1,

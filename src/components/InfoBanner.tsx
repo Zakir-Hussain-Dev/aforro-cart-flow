@@ -23,27 +23,27 @@ export const InfoBanner: React.FC<InfoBannerProps> = ({
   const getStyles = () => {
     switch (variant) {
       case 'warning':
-        return { 
-          container: styles.warningContainer, 
+        return {
+          container: styles.warningContainer,
           text: styles.warningText,
           icon: <AlertCircle size={18} color={COLORS.warningYellowText} />
         };
       case 'error':
-        return { 
-          container: styles.errorContainer, 
+        return {
+          container: styles.errorContainer,
           text: styles.errorText,
           icon: <AlertCircle size={18} color={COLORS.error} />
         };
       case 'success':
-        return { 
-          container: styles.successContainer, 
+        return {
+          container: styles.successContainer,
           text: styles.successText,
           icon: <Sparkles size={18} color={COLORS.primary} />
         };
       case 'info':
       default:
-        return { 
-          container: styles.infoContainer, 
+        return {
+          container: styles.infoContainer,
           text: styles.infoText,
           icon: <Sparkles size={18} color={COLORS.infoBlueText} />
         };
@@ -54,9 +54,9 @@ export const InfoBanner: React.FC<InfoBannerProps> = ({
 
   return (
     <View style={[styles.container, currentStyles.container, style]}>
-      <View style={styles.iconArea}>
+      {/* <View style={styles.iconArea}>
         {icon || currentStyles.icon}
-      </View>
+      </View> */}
       <Text style={[styles.text, currentStyles.text, textStyle]}>
         {message}
       </Text>
@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: 4,
+    alignSelf: 'center',
   },
   iconArea: {
     marginRight: SPACING.sm,
@@ -79,6 +80,7 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.size.xs,
     fontWeight: TYPOGRAPHY.weight.semiBold as any,
     flex: 1,
+    textAlign: 'center',
   },
   infoContainer: {
     backgroundColor: COLORS.infoBlue,

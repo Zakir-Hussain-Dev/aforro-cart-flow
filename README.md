@@ -14,12 +14,12 @@ Below you'll find the instructions to get this running locally, alongside an exp
 ### Installation
 1. Clone the repository and navigate into the project directory:
    ```bash
-   git clone <your-repo-link>
+   git clone https://github.com/Zakir-Hussain-Dev/aforro-cart-flow.git
    cd aforro-cart-flow
    ```
 2. Install the JavaScript dependencies:
    ```bash
-   npm install
+   npm install 
    ```
 3. Install the native iOS dependencies:
    ```bash
@@ -41,8 +41,13 @@ npx react-native run-android
 
 I decided to use a **React Native CLI (0.84.1)** setup combined with **TypeScript**. TypeScript was essential here to ensure type safety across the cart objects and predictable component properties.
 
+I also ensured performance optimizations using FlatList optimizations, memoization (React.memo, useCallback), and avoiding unnecessary re-renders.
+
 ### State Management
 Rather than over-engineering the solution with Redux for a scoped cart flow, I opted for the **React Context API** with `useReducer()`. It provides a clean, native, and scalable way to manage state without adding heavy third-party dependencies.
+
+I chose Context API over Redux to keep the solution lightweight, maintainable, and avoid unnecessary boilerplate for a scoped feature like cart flow. 
+
 - **CartContext**: Acts as the single source of truth for the cart. It handles adding/removing items, quantity updates, and houses the core business logic (e.g., calculating live subtotals, applying discounts, parsing out-of-stock cart blocking, and automatically waiving delivery fees if the threshold is met).
 - **Auth & Address Contexts**: I created isolated contexts to mock the user authentication state and address selection flows required by the checkout screen.
 
@@ -54,5 +59,26 @@ Rather than over-engineering the solution with Redux for a scoped cart flow, I o
 ### Business Logic
 - **No hardcoded totals**: Everything from total savings, payable amounts, to delivery fees is calculated dynamically in the Context state based on the raw product data.
 - **Data Mocking**: I used structured dummy static data (`DUMMY_PRODUCTS`) to mimic API payload structures, making it extremely easy to swap out with actual `fetch`/`axios` queries in the future.
+
+## Folder Structure
+
+src/
+ ├── components/
+ ├── screens/
+ ├── context/
+ ├── navigation/
+ ├── theme/
+
+## Screenshots
+
+Here are some screenshots of the application:
+
+<p float="left">
+  <img src="./screenshots/home.jpeg" width="200" />
+  <img src="./screenshots/product-detail.jpeg" width="200" />
+  <img src="./screenshots/detail-screen.jpeg" width="200" />
+  <img src="./screenshots/checkout.jpeg" width="200" />
+  <img src="./screenshots/checkout-screen.jpeg" width="200" />
+</p>
 
 Looking forward to discussing the implementation on our call!

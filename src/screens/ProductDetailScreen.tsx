@@ -77,9 +77,9 @@ export const ProductDetailScreen = () => {
   const navigation = useNavigation();
   const { productId } = route.params;
   // console.log("mounted product route:", productId);
-  
+
   const { items, addToCart, itemCount, payableAmount } = useCart();
-  
+
   const [modalVisible, setModalVisible] = useState(false);
 
   const product = DUMMY_PRODUCTS.find(p => p.id === productId) || DUMMY_PRODUCTS[0];
@@ -107,8 +107,8 @@ export const ProductDetailScreen = () => {
           <TouchableOpacity onPress={handleShare} style={styles.headerBtn}>
             <Share2 size={24} color={COLORS.text} />
           </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={() => (navigation as any).navigate('ReviewCart')} 
+          <TouchableOpacity
+            onPress={() => (navigation as any).navigate('ReviewCart')}
             style={styles.headerBtn}
           >
             <View style={styles.cartIconWrapper}>
@@ -124,7 +124,7 @@ export const ProductDetailScreen = () => {
       </SafeAreaView>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         <View style={styles.card}>
           <View style={styles.heroImageContainer}>
             <DiscountBadge percentage={52} containerStyle={styles.heroBadge} />
@@ -134,22 +134,22 @@ export const ProductDetailScreen = () => {
               {[1, 2, 3, 4].map(i => <View key={i} style={styles.dot} />)}
             </View>
           </View>
-          
+
           <View style={styles.heroInfo}>
             <Text style={styles.brand}>{product.brand || 'Cadbury'}</Text>
             <Text style={styles.name}>{product.name}</Text>
-            
+
             <View style={styles.priceRow}>
               <View>
                 <Text style={styles.unit}>{product.unit}</Text>
                 <View style={[styles.flexRow, { alignItems: 'center' }]}>
-                   <Text style={styles.price}>₹{product.price}</Text>
-                   <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
+                  <Text style={styles.price}>₹{product.price}</Text>
+                  <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
                 </View>
               </View>
 
-              <TouchableOpacity 
-                style={styles.optionsButton} 
+              <TouchableOpacity
+                style={styles.optionsButton}
                 onPress={() => setModalVisible(true)}
               >
                 <Text style={styles.optionsButtonText}>2 options</Text>
@@ -164,9 +164,9 @@ export const ProductDetailScreen = () => {
           <Text style={styles.sectionTitle}>Similar product</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
             {relatedProducts.map(p => (
-              <ProductCard 
-                key={p.id} 
-                product={p} 
+              <ProductCard
+                key={p.id}
+                product={p}
                 onPressOptions={() => setModalVisible(true)}
               />
             ))}
@@ -182,19 +182,19 @@ export const ProductDetailScreen = () => {
           <Text style={styles.sectionTitle}>Customers also bought</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
             {relatedProducts.map(p => (
-              <ProductCard 
-                key={p.id} 
-                product={p} 
+              <ProductCard
+                key={p.id}
+                product={p}
                 onPressOptions={() => setModalVisible(true)}
               />
             ))}
           </ScrollView>
         </View>
-        
+
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      <ProductVariationsModal 
+      <ProductVariationsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         productName={product.name}
@@ -204,7 +204,7 @@ export const ProductDetailScreen = () => {
       {/* Bottom info bar when cart has items */}
       {itemCount > 0 && (
         <SafeAreaView style={styles.floatingCartBar}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.cartBarContent}
             onPress={() => (navigation as any).navigate('ReviewCart')}
           >

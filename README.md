@@ -4,7 +4,7 @@ Hi! This repository contains my submission for the Aforro React Native Technical
 
 Below you'll find the instructions to get this running locally, alongside an explanation of the architectural decisions I made.
 
-## 🚀 Setup Steps
+## Setup Steps
 
 ### Prerequisites
 - Node.js (>= 22.11.0)
@@ -37,7 +37,7 @@ To run on an Android emulator or device:
 npx react-native run-android
 ```
 
-## 🏗️ Architecture & Implementation Approach
+## Architecture & Implementation Approach
 
 I decided to use a **React Native CLI (0.84.1)** setup combined with **TypeScript**. TypeScript was essential here to ensure type safety across the cart objects and predictable component properties.
 

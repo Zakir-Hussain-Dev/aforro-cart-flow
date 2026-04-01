@@ -65,7 +65,6 @@ export const ReviewCartScreen = () => {
       <Header title="Review Cart" />
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-        {/* Top Info Banners */}
         {/* <InfoBanner
           message={`You are saving ₹${totalSavings} with this order!`}
           variant="info"
@@ -79,14 +78,13 @@ export const ReviewCartScreen = () => {
           icon={<Info size={16} color={COLORS.warningYellowText} />}
         />
 
-        {/* Cart Items */}
         <View style={styles.itemsSection}>
           {items.map((item) => (
             <CartItem key={item.id} item={item} />
           ))}
         </View>
 
-        {/* Did you forget? Section */}
+        {/* suggestions block */}
         <View style={styles.suggestionSection}>
           <Text style={styles.sectionTitle}>Did you forget?</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.suggestionScroll}>
@@ -138,15 +136,12 @@ export const ReviewCartScreen = () => {
           </View>
         </View>
 
-        {/* Instructions */}
         <DeliveryInstructionsSelector />
 
-        {/* Bill Details */}
         <PriceDetails />
 
 
 
-        {/* Cancellation Policy */}
         <View style={styles.policySection}>
           <Text style={styles.policyTitle}>Cancellation policy</Text>
           <Text style={styles.policyText}>
@@ -159,7 +154,7 @@ export const ReviewCartScreen = () => {
 
       <View style={styles.bottomBar}>
         <SafeAreaView>
-          {/* Segment 1: Address */}
+          {/* Deliver to address block */}
           <TouchableOpacity
             style={styles.bottomAddressRow}
             onPress={() => (navigation as any).navigate('AddressSelection')}
@@ -178,7 +173,6 @@ export const ReviewCartScreen = () => {
 
           <View style={styles.bottomDivider} />
 
-          {/* Segment 2: Payment */}
           <View style={styles.bottomContent}>
             <View>
               <Text style={styles.bottomPayLabel}>To Pay</Text>

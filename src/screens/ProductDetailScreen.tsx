@@ -23,8 +23,8 @@ export const DUMMY_PRODUCTS: (Product & { brand?: string; relatedIds?: string[];
   {
     id: '1',
     brand: 'Cadbury',
-    name: 'Dairy milk Silk Chocolate Bar\nDairy milk Silk Chocolate Bar',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    name: 'Dairy milk Silk Chocolate Bar',
+    description: 'Smooth and creamy milk chocolate bar, perfect for sharing. (100% veg).',
     price: 444,
     originalPrice: 444,
     unit: '64 g',
@@ -76,6 +76,8 @@ export const ProductDetailScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'ProductDetail'>>();
   const navigation = useNavigation();
   const { productId } = route.params;
+  // console.log("mounted product route:", productId);
+  
   const { items, addToCart, itemCount, payableAmount } = useCart();
   
   const [modalVisible, setModalVisible] = useState(false);
@@ -95,7 +97,7 @@ export const ProductDetailScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Custom Header */}
+      {/* header component */}
       <SafeAreaView style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
@@ -122,7 +124,7 @@ export const ProductDetailScreen = () => {
       </SafeAreaView>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Main Product Card */}
+        
         <View style={styles.card}>
           <View style={styles.heroImageContainer}>
             <DiscountBadge percentage={52} containerStyle={styles.heroBadge} />
@@ -157,7 +159,7 @@ export const ProductDetailScreen = () => {
           </View>
         </View>
 
-        {/* Similar Products */}
+        {/* TODO: fetch related products from backend */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Similar product</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
@@ -171,13 +173,11 @@ export const ProductDetailScreen = () => {
           </ScrollView>
         </View>
 
-        {/* Description */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.description}>{product.description}</Text>
         </View>
 
-        {/* Customers also bought */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Customers also bought</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
@@ -194,7 +194,6 @@ export const ProductDetailScreen = () => {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Variations Modal */}
       <ProductVariationsModal 
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -202,7 +201,7 @@ export const ProductDetailScreen = () => {
         variations={product.variations || []}
       />
 
-      {/* Floating View Cart Bar */}
+      {/* Bottom info bar when cart has items */}
       {itemCount > 0 && (
         <SafeAreaView style={styles.floatingCartBar}>
           <TouchableOpacity 

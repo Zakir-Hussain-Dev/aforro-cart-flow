@@ -1,72 +1,58 @@
-# Aforro Cart Flow Assignment
+# Aforro Cart Flow - React Native Assignment
 
-A high-fidelity React Native implementation of the complete Cart Flow based on the provided Figma design.
+Hi! This repository contains my submission for the Aforro React Native Technical Assignment. My focus was on building a pixel-perfect, performant Cart Flow based strictly on the provided Figma designs. 
 
-## Features
+Below you'll find the instructions to get this running locally, alongside an explanation of the architectural decisions I made.
 
-- **Product Listing**: Category-wise products with quantity controls.
-- **Product Details**: Detailed view with price, description, and "Add to Cart" logic.
-- **Cart Management**: Real-time updates for quantities, totals, and savings.
-- **Multi-step Checkout**: Address selection, coupon application, and contextual login handling.
-- **Availability Logic**: Visual indicators and checkout blocking for out-of-stock items.
-
-## Tech Stack
-
-- **React Native CLI**: Version 0.84.1
-- **TypeScript**: Typed state management and props.
-- **Context API**: Native state management (Cart, Address, Auth).
-- **React Navigation**: Stack-based navigational flow.
-- **Lucide-react-native**: Modern icon library.
-- **React Native Reanimated**: For smooth transitions.
-
-## Project Structure
-
-```bash
-src/
-├── components/   # Reusable UI components (Button, Card, PriceDetails, etc.)
-├── context/      # State management stores (Cart, Address, Auth)
-├── navigation/   # Navigation configuration and RootNavigator
-├── screens/      # Application screens (Home, ProductDetail, Cart, ReviewCart, Login)
-└── theme/        # Design system constants (Colors, Typography, Spacing)
-```
-
-## State Management Architecture
-
-The project uses the **React Context API** to manage application state globally. Three main contexts are implemented:
-1. **CartContext**: Manages the cart items and business logic for price calculations (total, delivery fee, platform fee).
-2. **AddressContext**: Mocked address management for the delivery flow.
-3. **AuthContext**: Mocked authentication state to control the "Login to Continue" flow in the checkout process.
-
-## Setup Instructions
+## 🚀 Setup Steps
 
 ### Prerequisites
 - Node.js (>= 22.11.0)
-- React Native environment setup (Android/iOS)
-- CocoaPods (for iOS)
+- React Native environment (React Native CLI) set up for Android/iOS
+- CocoaPods (if testing on iOS)
 
 ### Installation
-1. Clone the repository.
-2. Install dependencies:
+1. Clone the repository and navigate into the project directory:
+   ```bash
+   git clone <your-repo-link>
+   cd aforro-cart-flow
+   ```
+2. Install the JavaScript dependencies:
    ```bash
    npm install
    ```
-3. (iOS only) Install pods:
+3. Install the native iOS dependencies:
    ```bash
    cd ios && pod install && cd ..
    ```
 
-### Running the App
-- **Android**:
-  ```bash
-  npx react-native run-android
-  ```
-- **iOS**:
-  ```bash
-  npx react-native run-ios
-  ```
+### Running the Application
+To run on an iOS simulator or device:
+```bash
+npx react-native run-ios
+```
 
-## Implementation Approach
-1. **Design System**: Established a consistent theme based on the Aforro branding (Green primary).
-2. **Contextual Logic**: Built specific contexts to handle complex cart logic, such as automatic delivery fee adjustment based on total amount.
-3. **Responsive UI**: Used `react-native-safe-area-context` and Flexbox to ensure the UI looks great on all devices.
-4. **Checkout Rules**: Implemented strict rules for checkout (e.g., cannot proceed with out-of-stock items, must login before final payment).
+To run on an Android emulator or device:
+```bash
+npx react-native run-android
+```
+
+## 🏗️ Architecture & Implementation Approach
+
+I decided to use a **React Native CLI (0.84.1)** setup combined with **TypeScript**. TypeScript was essential here to ensure type safety across the cart objects and predictable component properties.
+
+### State Management
+Rather than over-engineering the solution with Redux for a scoped cart flow, I opted for the **React Context API** with `useReducer()`. It provides a clean, native, and scalable way to manage state without adding heavy third-party dependencies.
+- **CartContext**: Acts as the single source of truth for the cart. It handles adding/removing items, quantity updates, and houses the core business logic (e.g., calculating live subtotals, applying discounts, parsing out-of-stock cart blocking, and automatically waiving delivery fees if the threshold is met).
+- **Auth & Address Contexts**: I created isolated contexts to mock the user authentication state and address selection flows required by the checkout screen.
+
+### Component Structure & UI
+- **Atomic/Reusable Components**: The `src/components/` directory holds all modular UI elements (`Button`, `ProductCard`, `CartItem`, etc.). Building composable atoms allowed me to easily configure complex screens like the `ProductDetailScreen` and `ReviewCartScreen` without code duplication.
+- **Theming**: All styling is driven by a central `theme/` directory containing the spacing, colors, and typography rules pulled directly from Figma. This ensures that any branding update cascades instantly across the app.
+- **Navigation**: Implemented using React Navigation (Native Stack) for fluid, OS-level screen transitions.
+
+### Business Logic
+- **No hardcoded totals**: Everything from total savings, payable amounts, to delivery fees is calculated dynamically in the Context state based on the raw product data.
+- **Data Mocking**: I used structured dummy static data (`DUMMY_PRODUCTS`) to mimic API payload structures, making it extremely easy to swap out with actual `fetch`/`axios` queries in the future.
+
+Looking forward to discussing the implementation on our call!

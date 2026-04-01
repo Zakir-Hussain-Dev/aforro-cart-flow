@@ -46,34 +46,39 @@ const TealStar = () => (
 export const CouponCard: React.FC<{ coupon: Coupon; onApply: (id: string) => void }> = ({ coupon, onApply }) => {
   return (
     <View style={styles.cardWrapper}>
-      {/* The overlapping circular badge */}
       <View style={styles.circularBadge}>
         <Text style={styles.circularBadgeText}>{coupon.discount}</Text>
       </View>
 
       <View style={[styles.card, coupon.isApplied && styles.appliedCard]}>
-        {/* Ticket Punch Holes */}
-        <View style={styles.leftPunch} />
-        <View style={styles.rightPunch} />
+        <View style={styles.topSection}>
+          <Text style={[
+            styles.descriptionText,
+            coupon.id === '1' && { color: '#E55555' }
+          ]}>
+            {coupon.description}
+          </Text>
 
-        <Text style={[
-          styles.descriptionText,
-          coupon.id === '1' && { color: COLORS.error }
-        ]}>
-          {coupon.description}
-        </Text>
-
-        <View style={styles.codeContainer}>
-          <Text style={styles.codeText}>{coupon.code}</Text>
+          <View style={styles.codeContainer}>
+            <Text style={styles.codeText}>{coupon.code}</Text>
+          </View>
         </View>
 
+        {/* <View style={styles.dividerContainer}>
+          <View style={styles.leftPunch} />
+          <View style={styles.dashedDivider} />
+          <View style={styles.rightPunch} />
+        </View> */}
+
+        {/* 4. Bottom Section (Apply/Applied Button) */}
         <TouchableOpacity
+          activeOpacity={0.7}
           style={[styles.applyButton, coupon.isApplied && styles.appliedButton]}
           onPress={() => onApply(coupon.id)}
         >
           {coupon.isApplied ? (
             <View style={styles.appliedButtonContent}>
-              <CheckCircle2 size={12} color={COLORS.white} style={{ marginRight: 4 }} />
+              <CheckCircle2 size={16} color={COLORS.white} style={{ marginRight: 6 }} />
               <Text style={styles.appliedButtonText}>APPLIED</Text>
             </View>
           ) : (
@@ -180,115 +185,126 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.md,
   },
   cardWrapper: {
-    width: 120,
+    width: 155, // Slightly wider to match screenshot proportions
     marginRight: SPACING.md,
     alignItems: 'center',
   },
   circularBadge: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#007C7C',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.navTeal,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top: -22, // Positioning to overlap the top of the card
-    zIndex: 6,
-    borderWidth: 2,
+    top: -30,
+    zIndex: 10,
+    borderWidth: 4,
     borderColor: COLORS.white,
+
   },
   circularBadgeText: {
     color: COLORS.white,
-    fontSize: 9,
+    fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
+    lineHeight: 18,
   },
   card: {
     width: '100%',
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.divider,
-    padding: SPACING.sm,
-    paddingTop: 24, // Internal space for the badge
+    borderColor: '#EFEFEF',
     alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden', // Required for punch hole effect
+    marginTop: 0,
+    overflow: 'hidden',
   },
-  leftPunch: {
-    position: 'absolute',
-    left: -10,
-    top: '50%',
-    marginTop: -10,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: COLORS.background, // Match screen background
-    borderWidth: 1,
-    borderColor: COLORS.divider,
-    zIndex: 1,
-  },
-  rightPunch: {
-    position: 'absolute',
-    right: -10,
-    top: '50%',
-    marginTop: -10,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.divider,
-    zIndex: 1,
-  },
-  appliedCard: {
-    borderColor: '#FFBB99',
+  topSection: {
+    paddingTop: 36, // Extra space for top badge
+    paddingBottom: 12,
+    paddingHorizontal: SPACING.sm,
+    alignItems: 'center',
+    width: '100%',
   },
   descriptionText: {
-    fontSize: 9,
-    color: COLORS.textSecondary,
+    fontSize: 12,
+    color: '#8A8A8A',
     textAlign: 'center',
     marginBottom: SPACING.sm,
-    height: 28,
     fontWeight: '600',
+    lineHeight: 16,
+    height: 34,
   },
   codeContainer: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
   codeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.text,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#000000',
+    letterSpacing: 0.5,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: 20,
+  },
+  leftPunch: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.white,
+    marginLeft: -10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  rightPunch: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.white,
+    marginRight: -10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  dashedDivider: {
+    flex: 1,
+    height: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DEDEDE',
+    borderStyle: 'dashed',
+    marginHorizontal: 2,
+  },
+  appliedCard: {
+    borderColor: '#FFB075',
   },
   applyButton: {
     width: '100%',
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: 14,
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.divider,
-    borderStyle: 'dashed',
+    justifyContent: 'center',
+    backgroundColor: COLORS.white,
   },
   appliedButton: {
     backgroundColor: '#FF8844',
-    borderTopWidth: 0,
-    borderRadius: 8,
   },
   applyButtonText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#FF8844',
+    color: '#FFB075',
+    letterSpacing: 1,
   },
   appliedButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   appliedButtonText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.white,
+    letterSpacing: 1,
   },
   savingsBanner: {
     paddingVertical: 12,

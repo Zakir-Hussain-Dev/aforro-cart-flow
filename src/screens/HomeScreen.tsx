@@ -12,6 +12,7 @@ import { ProductCard } from '../components/ProductCard';
 import { COLORS, SPACING, TYPOGRAPHY } from '../theme/constants';
 import { Product } from '../context/CartContext';
 
+// TEMP: dummy data until API is ready
 const DUMMY_PRODUCTS: Product[] = [
   {
     id: '1',
@@ -72,7 +73,7 @@ const DUMMY_PRODUCTS: Product[] = [
 
 export const HomeScreen = () => {
   const renderCategory = (title: string, products: Product[]) => (
-    <View style={styles.categorySection}>
+    <View style={[styles.categorySection, { marginTop: 4 }]}>
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryTitle}>{title}</Text>
         <TouchableOpacity>

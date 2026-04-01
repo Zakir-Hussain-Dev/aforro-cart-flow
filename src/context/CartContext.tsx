@@ -98,11 +98,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return acc;
     }, 0);
     
-    // Simple logic: if total > 500, delivery is free
-    const deliveryFee = totalAmount > 500 ? 0 : 40;
+    // TODO: move this logic to backend or config later
+    // if total > 500, delivery is free
+    let deliveryFee = totalAmount > 500 ? 0 : 40;
     const platformFee = 2;
     const discount = state.discount;
-    const payableAmount = totalAmount + deliveryFee + platformFee - discount;
+    let payableAmount = totalAmount + deliveryFee + platformFee - discount;
+    
+    // console.log("Calculated Cart Stats -> amount:", totalAmount, "payable:", payableAmount);
 
     return { itemCount, totalAmount, totalSavings, deliveryFee, platformFee, discount, payableAmount };
   }, [state.items, state.discount]);
